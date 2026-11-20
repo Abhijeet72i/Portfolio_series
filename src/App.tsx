@@ -5,13 +5,13 @@ type Reel = { id: number; title: string; video: string; poster: string; };
 type Project = { id: number; title: string; category: string; summary: string; video: string; poster: string; };
 
 const reels: Reel[] = Array.from({ length: 5 }, (_, i) => ({
-  id: i + 1, title: `Reel Placeholder 0${i + 1}`,
+  id: i + 1, title: `MentorEx Reel 0${i + 1}`,
   video: `/videos/reels/reel-0${i + 1}.mp4`, poster: `/images/reels/reel-0${i + 1}.svg`,
 }));
 const projects: Project[] = Array.from({ length: 5 }, (_, i) => ({
-  id: i + 1, title: `Project Placeholder 0${i + 1}`,
+  id: i + 1, title: `Project 0${i + 1}`,
   category: 'WEBSITE DESIGN · DEVELOPMENT',
-  summary: 'Add your project title, description and website demo video here. This dedicated project page is ready for your content.',
+  summary: 'A digital experience created by MentorEx Digital.',
   video: `/videos/projects/project-0${i + 1}.mp4`, poster: `/images/projects/project-0${i + 1}.svg`,
 }));
 
@@ -44,10 +44,94 @@ function Footer() {
   return <footer className="footer"><Logo /><p>© {new Date().getFullYear()} MENTOREX DIGITAL. ALL RIGHTS RESERVED.</p><Link to="/">BACK TO HOME ↑</Link></footer>;
 }
 function ReelCard({ reel }: { reel: Reel }) {
-  return <article className="media-card"><div className={`media-poster reel-slot-${reel.id}`}><video className="reel-video" controls playsInline preload="none" poster={reel.poster}><source src={reel.video} type="video/mp4"/>Your browser does not support video playback.</video><span className="media-index">0{reel.id}</span><span className="placeholder-tag">REEL VIDEO SLOT</span></div><div className="media-caption"><span>MENTOREX REEL · 0{reel.id}</span><h2>{reel.title}</h2><p>Upload your vertical reel to <code>{reel.video}</code></p></div></article>;
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const playPreview = () => {
+    const video = videoRef.current;
+    if (video) void video.play().catch(() => {});
+  };
+  const stopPreview = () => {
+    const video = videoRef.current;
+    if (video) {
+      video.pause();
+      video.currentTime = 0;
+    }
+  };
+
+  return (
+    <article className="media-card">
+      <div
+        className={`media-poster reel-slot-${reel.id} video-hover-card`}
+        onMouseEnter={playPreview}
+        onMouseLeave={stopPreview}
+        onFocus={playPreview}
+        onBlur={stopPreview}
+      >
+        <video
+          ref={videoRef}
+          className="reel-video hover-preview-video"
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster={reel.poster}
+          aria-label={reel.title}
+        >
+          <source src={reel.video} type="video/mp4" />
+        </video>
+        <span className="media-index">0{reel.id}</span>
+      </div>
+      <div className="media-caption">
+        <span>MENTOREX REEL · 0{reel.id}</span>
+      </div>
+    </article>
+  );
 }
+
 function ProjectCard({ project }: { project: Project }) {
-  return <Link to={`/projects/project-0${project.id}`} className="project-tile"><div className={`project-poster project-slot-${project.id}`} style={{ backgroundImage: `linear-gradient(180deg,transparent,rgba(0,0,0,.8)),url("${project.poster}")` }}><span className="media-index">0{project.id}</span><span className="project-open">VIEW PROJECT ↗</span><span className="placeholder-tag">DEMO VIDEO SLOT</span></div><div className="media-caption"><span>{project.category}</span><h2>{project.title}</h2><p>Open dedicated project page</p></div></Link>;
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const playPreview = () => {
+    const video = videoRef.current;
+    if (video) void video.play().catch(() => {});
+  };
+  const stopPreview = () => {
+    const video = videoRef.current;
+    if (video) {
+      video.pause();
+      video.currentTime = 0;
+    }
+  };
+
+  return (
+    <Link to={`/projects/project-0${project.id}`} className="project-tile">
+      <div
+        className={`project-poster project-slot-${project.id} video-hover-card`}
+        style={{ backgroundImage: `linear-gradient(180deg,transparent,rgba(0,0,0,.8)),url("${project.poster}")` }}
+        onMouseEnter={playPreview}
+        onMouseLeave={stopPreview}
+        onFocus={playPreview}
+        onBlur={stopPreview}
+      >
+        <video
+          ref={videoRef}
+          className="project-preview-video hover-preview-video"
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster={project.poster}
+          aria-label={project.title}
+        >
+          <source src={project.video} type="video/mp4" />
+        </video>
+        <span className="media-index">0{project.id}</span>
+        <span className="project-open">VIEW PROJECT ↗</span>
+      </div>
+      <div className="media-caption">
+        <span>{project.category}</span>
+        <h2>{project.title}</h2>
+      </div>
+    </Link>
+  );
 }
 function HomePage() {
   const [heroHovered, setHeroHovered] = useState(false);
@@ -79,13 +163,59 @@ function HomePage() {
     <section className="home-contact"><p className="eyebrow">HAVE AN IDEA?</p><h2>LET’S MAKE<br/><em>IT HAPPEN.</em></h2><Link to="/contact" className="contact-button">START A CONVERSATION ↗</Link></section></>;
 }
 function ReelsPage() {
-  return <section className="inner-page"><PageIntro number="01" eyebrow="THE SHOWREEL" title={<>SHORT FORM.<br/><em>BIG IMPACT.</em></>} copy="Five dedicated spaces for the reels you’ll upload. Each card is ready for your video and poster artwork."/><div className="media-grid">{reels.map(r => <ReelCard key={r.id} reel={r}/>)}</div><p className="asset-note">Upload MP4 files to <code>public/videos/reels/</code> and matching JPG poster images to <code>public/images/reels/</code>.</p></section>;
+  return (
+    <section className="inner-page">
+      <PageIntro
+        number="01"
+        eyebrow="THE SHOWREEL"
+        title={<>SHORT FORM.<br/><em>BIG IMPACT.</em></>}
+        copy="A collection of creative work from MentorEx Digital."
+      />
+      <div className="media-grid">{reels.map(r => <ReelCard key={r.id} reel={r} />)}</div>
+    </section>
+  );
 }
+
 function ProjectsPage() {
-  return <section className="inner-page"><PageIntro number="02" eyebrow="SELECTED WORK" title={<>MADE TO<br/><em>MAKE AN IMPACT.</em></>} copy="Explore each project on its own page. Add a website demo video, screenshots and project details whenever you’re ready."/><div className="project-grid">{projects.map(p => <ProjectCard key={p.id} project={p}/>)}</div><p className="asset-note">Upload project demo MP4 files to <code>public/videos/projects/</code> and poster JPGs to <code>public/images/projects/</code>.</p></section>;
+  return (
+    <section className="inner-page">
+      <PageIntro
+        number="02"
+        eyebrow="SELECTED WORK"
+        title={<>MADE TO<br/><em>MAKE AN IMPACT.</em></>}
+        copy="Digital experiences designed and developed by MentorEx Digital."
+      />
+      <div className="project-grid">{projects.map(p => <ProjectCard key={p.id} project={p} />)}</div>
+    </section>
+  );
 }
 function ProjectDetail({ project }: { project: Project }) {
-  return <section className="inner-page project-detail"><Link to="/projects" className="back-link">← ALL PROJECTS</Link><PageIntro number={`PROJECT 0${project.id}`} eyebrow={project.category} title={<>{project.title.split(' ')[0]}<br/><em>{project.title.split(' ').slice(1).join(' ') || 'SHOWCASE'}</em></>} copy={project.summary}/><div className="demo-frame"><div className="demo-label">WEBSITE DEMO · VIDEO PLACEHOLDER</div><video controls playsInline poster={project.poster}><source src={project.video} type="video/mp4"/>Your browser does not support video playback.</video><p>Place your website walkthrough video at <code>{project.video}</code>.</p></div><div className="detail-bottom"><div><span>PROJECT TYPE</span><p>Website Design & Development</p></div><div><span>BUILT BY</span><p>MentorEx Digital</p></div><div><span>WANT SOMETHING SIMILAR?</span><Link to="/contact">LET’S TALK ↗</Link></div></div><div className="detail-pagination">{project.id > 1 ? <Link to={`/projects/project-0${project.id - 1}`}>← PREVIOUS PROJECT</Link> : <span/>}{project.id < 5 ? <Link to={`/projects/project-0${project.id + 1}`}>NEXT PROJECT →</Link> : <Link to="/projects">BACK TO PROJECTS →</Link>}</div></section>;
+  return (
+    <section className="inner-page project-detail">
+      <Link to="/projects" className="back-link">← ALL PROJECTS</Link>
+      <PageIntro
+        number={`PROJECT 0${project.id}`}
+        eyebrow={project.category}
+        title={<>PROJECT<br/><em>0{project.id}</em></>}
+        copy={project.summary}
+      />
+      <div className="demo-frame">
+        <video controls playsInline preload="metadata" poster={project.poster}>
+          <source src={project.video} type="video/mp4" />
+          Your browser does not support video playback.
+        </video>
+      </div>
+      <div className="detail-bottom">
+        <div><span>PROJECT TYPE</span><p>Website Design & Development</p></div>
+        <div><span>BUILT BY</span><p>MentorEx Digital</p></div>
+        <div><span>WANT SOMETHING SIMILAR?</span><Link to="/contact">LET’S TALK ↗</Link></div>
+      </div>
+      <div className="detail-pagination">
+        {project.id > 1 ? <Link to={`/projects/project-0${project.id - 1}`}>← PREVIOUS PROJECT</Link> : <span/>}
+        {project.id < 5 ? <Link to={`/projects/project-0${project.id + 1}`}>NEXT PROJECT →</Link> : <Link to="/projects">BACK TO PROJECTS →</Link>}
+      </div>
+    </section>
+  );
 }
 function StoriesPage() {
   const stories = [{n:'01',t:'BEHIND THE BUILD',d:'Every project starts with listening. We understand the business, the audience and the goal before shaping the digital experience.'},{n:'02',t:'THE MENTOREX APPROACH',d:'Strategy, design and technology come together to build a clear and consistent digital presence.'},{n:'03',t:'DESIGN DIARIES',d:'From the first wireframe to the finishing details, we care about clarity, usability and memorable experiences.'}];
