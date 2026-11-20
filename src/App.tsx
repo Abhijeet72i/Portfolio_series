@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode, type MouseEvent } from 'react';
+import { useEffect, useRef, useState, type ReactNode, type MouseEvent } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 type Reel = { id: number; title: string; video: string; poster: string; };
@@ -51,8 +51,20 @@ function ProjectCard({ project }: { project: Project }) {
 }
 function HomePage() {
   const [heroHovered, setHeroHovered] = useState(false);
-  return <><section className={heroHovered ? "hero home-hero hero-video-active" : "hero home-hero"} onMouseEnter={() => setHeroHovered(true)} onMouseLeave={() => setHeroHovered(false)}>
-    <video className="hero-background-video" muted loop playsInline preload="none" autoPlay={heroHovered} aria-hidden="true">
+  const heroVideoRef = useRef<HTMLVideoElement | null>(null);
+  const startHeroVideo = () => {
+    setHeroHovered(true);
+    if (heroVideoRef.current) void heroVideoRef.current.play().catch(() => {});
+  };
+  const stopHeroVideo = () => {
+    setHeroHovered(false);
+    if (heroVideoRef.current) {
+      heroVideoRef.current.pause();
+      heroVideoRef.current.currentTime = 0;
+    }
+  };
+  return <><section className={heroHovered ? "hero home-hero hero-video-active" : "hero home-hero"} onMouseEnter={startHeroVideo} onMouseLeave={stopHeroVideo}>
+    <video ref={heroVideoRef} className="hero-background-video" muted loop playsInline preload="none" aria-hidden="true">
       <source src="/videos/hero/hero-showreel.mp4" type="video/mp4"/>
     </video>
     <div className="hero-video-shade"/>
