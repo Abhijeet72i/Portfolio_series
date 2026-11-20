@@ -17,7 +17,7 @@ const projects: Project[] = Array.from({ length: 5 }, (_, i) => ({
 
 function Logo({ large = false }: { large?: boolean }) {
   return <a className={large ? 'brand brand-large' : 'brand'} href="/" onClick={(e) => navigate(e, '/') } aria-label="MentorEx Digital home">
-    <span className="brand-mark">M<span>•</span></span><span className="brand-name">MENTOREX <b>DIGITAL</b></span>
+    <img className="brand-logo-image" src="/images/mentorex-logo.png" alt="MentorEx Digital" onError={(e) => { e.currentTarget.style.display = 'none'; }} /><span className="brand-mark brand-mark-fallback">M<span>•</span></span><span className="brand-name">MENTOREX <b>DIGITAL</b></span>
   </a>;
 }
 let routeTo: ((path: string) => void) | null = null;
@@ -74,7 +74,7 @@ function LogoReveal({ done }: { done: () => void }) {
   useEffect(() => { const t = window.setTimeout(done, 2800); return () => window.clearTimeout(t); }, [done]);
   return <motion.div className="logo-reveal" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: .65 }}>
     <motion.div className="reveal-logo" initial={{ opacity: 0, scale: .7, filter: 'blur(18px)', letterSpacing: '.5em' }} animate={{ opacity: 1, scale: 1, filter: 'blur(0px)', letterSpacing: '.08em' }} transition={{ duration: 1.25, ease: [0.16,1,0.3,1] }}>
-      <span className="reveal-symbol">M<span>•</span></span><span className="reveal-word">MENTOREX<br/><b>DIGITAL</b></span>
+      <img className="reveal-logo-image" src="/images/mentorex-logo.png" alt="MentorEx Digital logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} /><span className="reveal-symbol reveal-symbol-fallback">M<span>•</span></span><span className="reveal-word">MENTOREX<br/><b>DIGITAL</b></span>
     </motion.div>
     <motion.div className="reveal-line" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 1.1, delay: .55 }}/>
     <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.1 }}>AN EDUCATED CHOICE</motion.p>
