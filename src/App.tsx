@@ -146,7 +146,15 @@ function HomePage() {
     }
   };
   return <><section className={heroHovered ? "hero home-hero hero-video-active" : "hero home-hero"} onMouseEnter={startHeroVideo} onMouseLeave={stopHeroVideo}>
-    <video ref={heroVideoRef} className="hero-background-video" muted loop playsInline preload="none" aria-hidden="true">
+    <video
+      ref={heroVideoRef}
+      className="hero-background-video"
+      muted
+      loop
+      playsInline
+      preload="auto"
+      aria-hidden="true"
+    >
       <source src="/videos/hero/ww1.mp4" type="video/mp4"/>
     </video>
     <div className="hero-video-shade"/>
