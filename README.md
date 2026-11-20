@@ -42,3 +42,9 @@ The contact page and floating WhatsApp shortcut use **+91 80912 24491**.
 
 ## Hosting
 The repository includes `vercel.json` with SPA route rewrites. Import this GitHub repository into Vercel and use the defaults: build command `npm run build`, output directory `dist`.
+
+### Homepage hover showreel
+Add your cinematic landscape hero video at:
+`public/videos/hero/hero-showreel.mp4`
+
+The homepage hero video starts playing muted only while a visitor hovers over the hero area, then fades out and stops being requested for playback when the pointer leaves. The **WATCH NOW** button opens the Reels page. Use a compressed 16:9 MP4 (H.264), ideally 10–25 seconds and under 15 MB, for a fast cinematic preview.
