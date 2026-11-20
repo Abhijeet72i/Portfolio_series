@@ -66,15 +66,13 @@ function ReelCard({ reel }: { reel: Reel }) {
         onFocus={playPreview}
         onBlur={stopPreview}
       >
-        <img className="video-thumbnail" src={reel.poster} alt="" aria-hidden="true" />
         <video
           ref={videoRef}
           className="reel-video hover-preview-video"
           muted
           loop
           playsInline
-          preload="metadata"
-          poster={reel.poster}
+          preload="auto"
           aria-label={reel.title}
         >
           <source src={reel.video} type="video/mp4" />
@@ -112,15 +110,13 @@ function ProjectCard({ project }: { project: Project }) {
         onFocus={playPreview}
         onBlur={stopPreview}
       >
-        <img className="video-thumbnail" src={project.poster} alt="" aria-hidden="true" />
         <video
           ref={videoRef}
           className="project-preview-video hover-preview-video"
           muted
           loop
           playsInline
-          preload="metadata"
-          poster={project.poster}
+          preload="auto"
           aria-label={project.title}
         >
           <source src={project.video} type="video/mp4" />
