@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode, type MouseEvent } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 type Reel = { id: number; title: string; video: string; poster: string; };
@@ -21,10 +21,10 @@ function Logo({ large = false }: { large?: boolean }) {
   </a>;
 }
 let routeTo: ((path: string) => void) | null = null;
-function navigate(e: React.MouseEvent<HTMLAnchorElement>, path: string) {
+function navigate(e: MouseEvent<HTMLAnchorElement>, path: string) {
   e.preventDefault(); routeTo?.(path);
 }
-function Link({ to, children, className = '' }: { to: string; children: React.ReactNode; className?: string }) {
+function Link({ to, children, className = '' }: { to: string; children: ReactNode; className?: string }) {
   return <a href={to} className={className} onClick={(e) => navigate(e, to)}>{children}</a>;
 }
 function Header({ path }: { path: string }) {
