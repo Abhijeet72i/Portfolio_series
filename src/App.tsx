@@ -66,6 +66,7 @@ function ReelCard({ reel }: { reel: Reel }) {
         onFocus={playPreview}
         onBlur={stopPreview}
       >
+        <img className="video-thumbnail" src={reel.poster} alt="" aria-hidden="true" />
         <video
           ref={videoRef}
           className="reel-video hover-preview-video"
@@ -111,6 +112,7 @@ function ProjectCard({ project }: { project: Project }) {
         onFocus={playPreview}
         onBlur={stopPreview}
       >
+        <img className="video-thumbnail" src={project.poster} alt="" aria-hidden="true" />
         <video
           ref={videoRef}
           className="project-preview-video hover-preview-video"
