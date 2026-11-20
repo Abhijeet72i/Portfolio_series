@@ -794,3 +794,52 @@ em { font-style: normal; color: #e6332a; }
 @media (prefers-reduced-motion: reduce) {
   .hero-background-video { transition: none; }
 }
+
+/* Hover preview video cards */
+.video-hover-card {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+.hover-preview-video {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity .35s ease;
+  background: #090909;
+}
+.video-hover-card:hover .hover-preview-video,
+.video-hover-card:focus-within .hover-preview-video {
+  opacity: 1;
+}
+.video-hover-card .media-index,
+.video-hover-card .project-open {
+  z-index: 2;
+  pointer-events: none;
+}
+.project-preview-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity .35s ease;
+  pointer-events: none;
+}
+.project-tile:hover .project-preview-video {
+  opacity: 1;
+}
+.project-tile:hover .project-poster {
+  background-image: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-preview-video,
+  .project-preview-video {
+    transition: none;
+  }
+}
