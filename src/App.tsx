@@ -50,7 +50,19 @@ function ProjectCard({ project }: { project: Project }) {
   return <Link to={`/projects/project-0${project.id}`} className="project-tile"><div className={`project-poster project-slot-${project.id}`} style={{ backgroundImage: `linear-gradient(180deg,transparent,rgba(0,0,0,.8)),url("${project.poster}")` }}><span className="media-index">0{project.id}</span><span className="project-open">VIEW PROJECT ↗</span><span className="placeholder-tag">DEMO VIDEO SLOT</span></div><div className="media-caption"><span>{project.category}</span><h2>{project.title}</h2><p>Open dedicated project page</p></div></Link>;
 }
 function HomePage() {
-  return <><section className="hero home-hero"><div className="hero-orb orb-one"/><div className="hero-orb orb-two"/><div className="hero-content"><p className="eyebrow">INDEPENDENT DIGITAL CREATIVE STUDIO</p><h1>WE MAKE<br/><span>DIGITAL</span> MATTER<span className="red-dot">.</span></h1><div className="hero-bottom"><p>We build bold digital experiences that help ambitious businesses stand out, connect and grow.</p><Link to="/projects" className="round-link">↘</Link></div></div><div className="hero-meta"><span>STRATEGY / DESIGN / DEVELOPMENT</span><span>SCROLL TO EXPLORE ↓</span><span>AN EDUCATED CHOICE</span></div><div className="hero-stamp"><span>CREATIVE<br/>THINKING</span><b>✳</b><span>DIGITAL<br/>IMPACT</span></div></section>
+  const [heroHovered, setHeroHovered] = useState(false);
+  return <><section className={heroHovered ? "hero home-hero hero-video-active" : "hero home-hero"} onMouseEnter={() => setHeroHovered(true)} onMouseLeave={() => setHeroHovered(false)}>
+    <video className="hero-background-video" muted loop playsInline preload="none" autoPlay={heroHovered} aria-hidden="true">
+      <source src="/videos/hero/hero-showreel.mp4" type="video/mp4"/>
+    </video>
+    <div className="hero-video-shade"/>
+    <div className="hero-orb orb-one"/><div className="hero-orb orb-two"/>
+    <div className="hero-content"><p className="eyebrow">INDEPENDENT DIGITAL CREATIVE STUDIO</p><h1>WE MAKE<br/><span>DIGITAL</span> MATTER<span className="red-dot">.</span></h1>
+      <div className="hero-bottom"><p>We build bold digital experiences that help ambitious businesses stand out, connect and grow.</p><div className="hero-actions"><Link to="/reels" className="watch-now-button"><span className="watch-play">▶</span> WATCH NOW</Link><Link to="/projects" className="round-link" aria-label="Explore projects">↘</Link></div></div>
+    </div>
+    <div className="hero-meta"><span>STRATEGY / DESIGN / DEVELOPMENT</span><span className="hover-hint">{heroHovered ? "NOW PLAYING" : "HOVER TO PREVIEW"}</span><span>AN EDUCATED CHOICE</span></div>
+    <div className="hero-stamp"><span>CREATIVE<br/>THINKING</span><b>✳</b><span>DIGITAL<br/>IMPACT</span></div>
+  </section>
     <section className="home-feature"><p className="eyebrow">EXPLORE THE MENTOREX UNIVERSE</p><h2>ONE STUDIO.<br/><em>MANY POSSIBILITIES.</em></h2><div className="feature-links"><Link to="/reels">01 — WATCH OUR REELS <span>↗</span></Link><Link to="/projects">02 — EXPLORE PROJECTS <span>↗</span></Link><Link to="/stories">03 — OUR STORIES <span>↗</span></Link></div></section>
     <section className="home-contact"><p className="eyebrow">HAVE AN IDEA?</p><h2>LET’S MAKE<br/><em>IT HAPPEN.</em></h2><Link to="/contact" className="contact-button">START A CONVERSATION ↗</Link></section></>;
 }
