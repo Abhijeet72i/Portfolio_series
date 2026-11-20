@@ -143,3 +143,71 @@ button { color: inherit; font: inherit; }
   .project-modal { display:block; } .project-modal-image { min-height:230px; } .project-modal-copy { padding:30px 23px; } .project-modal-copy h3 { font-size:40px; }
 }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; } }
+
+
+/* Multi-page agency experience + cinematic brand reveal */
+.brand-intro { position:fixed; inset:0; z-index:200; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#070707; }
+.intro-logo-wrap { display:flex; flex-direction:column; align-items:center; gap:18px; }
+.intro-logo { display:block; width:min(190px,42vw); max-height:120px; object-fit:contain; }
+.intro-wordmark { font-family:var(--font-display); font-size:clamp(42px,8vw,78px); letter-spacing:.08em; color:#f2f0eb; }
+.intro-wordmark span { color:#e6332a; }
+.intro-line { width:min(250px,55vw); height:2px; margin-top:24px; background:#e6332a; transform-origin:left; }
+.brand-intro>p { margin-top:18px; color:#aaa49d; font-size:9px; font-weight:700; letter-spacing:.35em; }
+.brand-button,.footer-brand { display:inline-flex; align-items:center; gap:10px; padding:0; border:0; background:transparent; cursor:pointer; }
+.nav-logo { width:38px; height:38px; object-fit:contain; }
+.nav-item { padding:10px 0; border:0; background:transparent; color:#bdbbb6; cursor:pointer; font-size:10px; font-weight:700; letter-spacing:.13em; text-transform:uppercase; transition:color .2s; }
+.nav-item:hover,.nav-item.active { color:#fff; }
+.nav-item.active:after { content:''; display:block; height:2px; margin-top:7px; background:#e6332a; }
+.inner-page { min-height:calc(100svh - 110px); padding:155px clamp(22px,8vw,120px) 110px; background:radial-gradient(ellipse at 80% 12%,rgba(150,36,29,.12),transparent 35%),#090909; }
+.page-intro { margin-bottom:58px; }
+.page-intro h1,.project-detail h1,.contact-page h1 { margin:26px 0 18px; font-family:var(--font-display); font-size:clamp(76px,12vw,155px); line-height:.82; font-weight:400; }
+.page-intro h1 em,.project-detail h1 em,.contact-page h1 em,.home-feature h2 em,.home-contact h2 em { color:#e6332a; font-style:normal; }
+.page-intro>p:last-child { max-width:540px; color:#99958f; font-size:13px; line-height:1.9; }
+.reel-grid-five { grid-template-columns:repeat(5,minmax(0,1fr)); }
+.placeholder-poster,.project-placeholder { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; background:radial-gradient(ellipse at center,rgba(145,40,33,.22),transparent 65%),linear-gradient(145deg,#1b1918,#0d0d0d); border:1px dashed rgba(230,90,81,.45); }
+.placeholder-poster { aspect-ratio:9/14; }
+.placeholder-symbol { display:grid; place-items:center; width:58px; height:58px; border:1px solid rgba(255,255,255,.5); border-radius:50%; color:#e65a51; font-size:25px; font-weight:300; }
+.placeholder-label { color:#77716b; font-size:8px; font-weight:800; letter-spacing:.17em; }
+.project-grid-five { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.project-placeholder { aspect-ratio:16/10; }
+.project-placeholder .placeholder-symbol { width:48px;height:48px; }
+.project-detail { padding-top:160px; }
+.project-detail h1 { max-width:950px; }
+.detail-lead { max-width:580px; color:#aaa49d; font-size:14px; line-height:1.9; }
+.project-demo-frame { width:100%; min-height:420px; margin:50px 0 34px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:13px; border:1px dashed rgba(230,90,81,.5); background:radial-gradient(ellipse at center,rgba(145,40,33,.2),transparent 60%),#11100f; cursor:pointer; color:#f2f0eb; font-size:10px; font-weight:800; letter-spacing:.2em; }
+.project-demo-frame small { color:#77716b; font-size:8px; }
+.detail-bottom { display:grid; grid-template-columns:1fr 2fr; gap:40px; padding-top:24px; border-top:1px solid #34302d; }
+.detail-bottom span,.contact-details span { color:#827c75; font-size:8px; font-weight:800; letter-spacing:.18em; }
+.detail-bottom p { color:#d8d3cb; font-size:12px; line-height:1.8; }
+.contact-page { min-height:calc(100svh - 110px); padding-top:180px; }
+.contact-page h1 { font-size:clamp(90px,14vw,185px); }
+.contact-page .contact-button { display:inline-flex; margin-top:25px; border:0; cursor:pointer; }
+.home-feature { padding:100px clamp(22px,8vw,120px) 130px; background:#11100f; }
+.home-feature h2,.home-contact h2 { margin:25px 0 48px; font-family:var(--font-display); font-size:clamp(58px,9vw,120px); line-height:.88; font-weight:400; }
+.feature-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+.feature-grid button { min-height:190px; display:flex; flex-direction:column; align-items:flex-start; justify-content:space-between; padding:24px; text-align:left; border:1px solid #373230; background:#151413; cursor:pointer; transition:border-color .25s,transform .25s; }
+.feature-grid button:hover { border-color:#e6332a; transform:translateY(-5px); }
+.feature-grid button>span { color:#e65a51; font-size:8px; font-weight:800; letter-spacing:.16em; }
+.feature-grid button>b { width:100%; font-family:var(--font-display); font-size:32px; font-weight:400; }
+.feature-grid button>b i { float:right; color:#e6332a; font-style:normal; }
+.feature-grid button>small { color:#918c86; font-size:11px; line-height:1.7; }
+.home-contact { padding:100px clamp(22px,8vw,120px); background:radial-gradient(ellipse at 80% 50%,rgba(150,39,31,.14),transparent 50%),#090909; }
+.home-contact h2 { margin-bottom:35px; font-size:clamp(76px,12vw,155px); }
+.home-contact .contact-button { border:0; cursor:pointer; }
+.footer button { border:0; background:none; color:#77716b; cursor:pointer; font-size:8px; font-weight:700; letter-spacing:.14em; }
+.footer button:hover { color:#fff; }
+@media(max-width:1050px) { .reel-grid-five { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media(max-width:650px) {
+  .nav-logo { width:30px;height:30px; }
+  .inner-page { padding:125px 22px 80px; }
+  .page-intro { margin-bottom:36px; }
+  .page-intro h1,.project-detail h1 { font-size:clamp(65px,17vw,100px); }
+  .reel-grid-five { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .project-grid-five { grid-template-columns:1fr; }
+  .project-demo-frame { min-height:230px; margin-top:30px; }
+  .detail-bottom { grid-template-columns:1fr; gap:10px; }
+  .feature-grid { grid-template-columns:1fr; }
+  .home-feature,.home-contact { padding:80px 22px; }
+  .home-feature h2,.home-contact h2 { font-size:clamp(58px,15vw,90px); }
+  .contact-page h1 { font-size:clamp(82px,18vw,125px); }
+}
