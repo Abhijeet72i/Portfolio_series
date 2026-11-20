@@ -1,136 +1,183 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
-type Work = { title: string; type: string; description: string; image: string; };
-type Reel = { title: string; category: string; video: string; poster: string; };
+type Reel = { id: string; title: string; category: string; video: string; poster: string };
+type Project = { id: string; title: string; category: string; description: string; video: string; poster: string };
 
-const reels: Reel[] = [
-  { title: 'Restaurant & Food Films', category: 'REEL 01 · HOSPITALITY', video: '/videos/reels/restaurant-promo.mp4', poster: '/images/reels/restaurant-promo.jpg' },
-  { title: 'Hotel Experiences', category: 'REEL 02 · TRAVEL', video: '/videos/reels/hotel-promo.mp4', poster: '/images/reels/hotel-promo.jpg' },
-  { title: 'Website Showcases', category: 'REEL 03 · WEB', video: '/videos/reels/website-showcase.mp4', poster: '/images/reels/website-showcase.jpg' },
-  { title: 'Campaign Stories', category: 'REEL 04 · CAMPAIGNS', video: '/videos/reels/digital-ad.mp4', poster: '/images/reels/digital-ad.jpg' },
+const reels: Reel[] = Array.from({ length: 5 }, (_, i) => ({
+  id: String(i + 1).padStart(2, '0'),
+  title: `Reel Placeholder ${i + 1}`,
+  category: 'ADD YOUR REEL',
+  video: `/videos/reels/reel-${i + 1}.mp4`,
+  poster: `/images/reels/reel-${i + 1}.jpg`,
+}));
+
+const projects: Project[] = Array.from({ length: 5 }, (_, i) => ({
+  id: `project-${String(i + 1).padStart(2, '0')}`,
+  title: `Project Placeholder ${i + 1}`,
+  category: 'WEBSITE DESIGN & DEVELOPMENT',
+  description: 'Add your project description, website link, technologies and project highlights here.',
+  video: `/videos/projects/project-${i + 1}-demo.mp4`,
+  poster: `/images/projects/project-${i + 1}.jpg`,
+}));
+
+const nav = [
+  { label: 'Home', path: '/' },
+  { label: 'Reels', path: '/reels' },
+  { label: 'Projects', path: '/projects' },
+  { label: 'Our Stories', path: '/stories' },
+  { label: 'Contact', path: '/contact' },
 ];
-
-const projects: Work[] = [
-  { title: 'Ahmed Foodverse', type: 'HOSPITALITY · WEB EXPERIENCE', description: 'A dark, premium restaurant website concept built around rich food visuals, menu discovery and direct WhatsApp ordering.', image: '/images/projects/ahmed-foodverse.jpg' },
-  { title: 'Hospitality Experiences', type: 'HOTELS · CAFÉS · RESTAURANTS', description: 'Digital experiences that help hospitality brands present their spaces, services and signature offerings.', image: '/images/projects/hospitality.jpg' },
-  { title: 'Business Websites', type: 'WEB DESIGN · DEVELOPMENT', description: 'Responsive websites designed to make small businesses easier to discover, understand and contact.', image: '/images/projects/business-websites.jpg' },
-  { title: 'Campaign Studio', type: 'CREATIVE · SOCIAL MEDIA', description: 'Short-form promotional concepts and creative assets built to communicate a brand message clearly.', image: '/images/projects/campaign-studio.jpg' },
-];
-
-const stories = [
-  { number: '01', title: 'Behind the Build', tag: 'OUR PROCESS', text: 'Every project begins with understanding the business, its audience and the action the website should inspire.' },
-  { number: '02', title: 'The MentorEx Approach', tag: 'OUR THINKING', text: 'Strategy, design and technology come together to create a consistent digital presence—not just a pretty page.' },
-  { number: '03', title: 'Design Diaries', tag: 'OUR CRAFT', text: 'From the first wireframe to the finishing details, we focus on clarity, speed and memorable experiences.' },
-];
-
-const services = ['Website Design', 'Website Development', 'Social Media Marketing', 'SEO & Local Visibility', 'Branding & Creative Design', 'Video & Ad Creatives', 'Digital Strategy'];
-
-function SectionHeading({ eyebrow, title, copy }: { eyebrow: string; title: string; copy?: string }) {
-  return <div className="section-heading"><p className="eyebrow">{eyebrow}</p><h2>{title}</h2>{copy && <p className="section-copy">{copy}</p>}</div>;
-}
 
 function App() {
-  const [activeReel, setActiveReel] = useState<Reel | null>(null);
-  const [activeProject, setActiveProject] = useState<Work | null>(null);
+  const [path, setPath] = useState(window.location.pathname.replace(/\/$/, '') || '/');
+  const [intro, setIntro] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [playing, setPlaying] = useState<Reel | Project | null>(null);
+
+  const navigate = (next: string) => {
+    window.history.pushState({}, '', next);
+    setPath(next);
+    setMenuOpen(false);
+    setPlaying(null);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
 
   useEffect(() => {
-    document.body.style.overflow = activeReel || activeProject ? 'hidden' : '';
+    const pop = () => { setPath(window.location.pathname.replace(/\/$/, '') || '/'); setPlaying(null); };
+    window.addEventListener('popstate', pop);
+    const timer = window.setTimeout(() => setIntro(false), 2900);
+    return () => { window.removeEventListener('popstate', pop); window.clearTimeout(timer); };
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = playing || intro ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
-  }, [activeReel, activeProject]);
-
-  const closeOverlays = () => { setActiveReel(null); setActiveProject(null); };
+  }, [playing, intro]);
 
   useEffect(() => {
-    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') closeOverlays(); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setPlaying(null); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
+  const activeProject = path.startsWith('/projects/') ? projects.find(p => p.id === path.split('/')[2]) : undefined;
+  const isActive = (p: string) => p === '/' ? path === '/' : path === p || path.startsWith(p + '/');
+
   return (
     <div className="site-shell">
       <div className="noise" aria-hidden="true" />
+      <AnimatePresence>
+        {intro && <motion.div className="brand-intro" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: .8 }}>
+          <motion.div className="intro-logo-wrap" initial={{ scale: .78, opacity: 0, filter: 'blur(12px)' }} animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }} transition={{ duration: 1.1, ease: [0.22,1,0.36,1] }}>
+            <img src="/images/mentorex-logo.png" alt="MentorEx" className="intro-logo" onError={e => { e.currentTarget.style.display = 'none'; }} />
+            <div className="intro-wordmark">MENTOREX<span> DIGITAL</span></div>
+          </motion.div>
+          <motion.div className="intro-line" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: .65, duration: .8 }} />
+          <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.1 }}>AN EDUCATED CHOICE</motion.p>
+        </motion.div>}
+      </AnimatePresence>
+
       <header className="navbar">
-        <a className="brand" href="#home" aria-label="MentorEx Digital home"><span className="brand-mark">M<span>•</span></span><span className="brand-name">MENTOREX <b>DIGITAL</b></span></a>
+        <button className="brand brand-button" onClick={() => navigate('/')} aria-label="MentorEx Digital home">
+          <img src="/images/mentorex-logo.png" alt="" className="nav-logo" onError={e => { e.currentTarget.style.display = 'none'; }} />
+          <span className="brand-name">MENTOREX <b>DIGITAL</b></span>
+        </button>
         <button className="menu-toggle" aria-label="Toggle navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}>{menuOpen ? 'CLOSE −' : 'MENU +'}</button>
         <nav className={menuOpen ? 'nav-links open' : 'nav-links'} aria-label="Main navigation">
-          {['Home', 'Reels', 'Projects', 'Our Stories', 'Contact'].map((item) => <a key={item} href={'#' + item.toLowerCase().replaceAll(' ', '-')} onClick={() => setMenuOpen(false)}>{item}</a>)}
+          {nav.map(item => <button key={item.path} className={isActive(item.path) ? 'nav-item active' : 'nav-item'} onClick={() => navigate(item.path)}>{item.label}</button>)}
         </nav>
-        <a className="nav-cta" href="#contact">LET’S TALK <span>↗</span></a>
+        <button className="nav-cta" onClick={() => navigate('/contact')}>LET’S TALK <span>↗</span></button>
       </header>
 
       <main>
-        <section className="hero" id="home">
-          <div className="hero-orb orb-one" /><div className="hero-orb orb-two" />
-          <div className="hero-content">
-            <motion.p className="eyebrow" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .7 }}>INDEPENDENT DIGITAL CREATIVE STUDIO</motion.p>
-            <motion.h1 initial={{ opacity: 0, y: 35 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .85, delay: .12 }}>WE MAKE<br /><span>DIGITAL</span> MATTER<span className="red-dot">.</span></motion.h1>
-            <motion.div className="hero-bottom" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: .5, duration: .8 }}>
-              <p>We build bold digital experiences that help ambitious businesses stand out, connect and grow.</p>
-              <a href="#projects" className="round-link" aria-label="Explore projects">↘</a>
-            </motion.div>
-          </div>
-          <div className="hero-meta"><span>STRATEGY / DESIGN / DEVELOPMENT</span><span>SCROLL TO EXPLORE ↓</span><span>EST. 2023</span></div>
-          <div className="hero-stamp"><span>CREATIVE<br />THINKING</span><b>✳</b><span>DIGITAL<br />IMPACT</span></div>
-        </section>
-
-        <section className="intro-strip">
-          <p>GOOD DESIGN GETS ATTENTION.</p><p className="outline">GREAT DIGITAL BUILDS TRUST.</p>
-        </section>
-
-        <section className="section reels-section" id="reels">
-          <SectionHeading eyebrow="01 / THE SHOWREEL" title={<>SMALL SCREENS.<br /><em>BIG IMPACT.</em></>} copy="A glimpse into the creative work, visual stories and digital moments we bring to life." />
-          <div className="reel-grid">
-            {reels.map((reel, i) => <motion.button className="reel-card" key={reel.title} onClick={() => setActiveReel(reel)} initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-60px' }} transition={{ delay: i * .08, duration: .6 }}>
-              <div className="reel-poster" style={{ backgroundImage: `linear-gradient(180deg,rgba(0,0,0,.04),rgba(0,0,0,.72)),url("${reel.poster}")` }}><span className="play-icon">▶</span><span className="reel-index">0{i + 1}</span></div>
-              <div className="reel-info"><span>{reel.category}</span><h3>{reel.title}</h3><b>↗</b></div>
-            </motion.button>)}
-          </div>
-          <p className="asset-note">MEDIA NOTE: Add your finished vertical videos to <code>public/videos/reels/</code> and matching poster images to <code>public/images/reels/</code>.</p>
-        </section>
-
-        <section className="section projects-section" id="projects">
-          <SectionHeading eyebrow="02 / SELECTED WORK" title={<>BUILT WITH<br /><em>INTENTION.</em></>} copy="A selection of digital experiences and creative directions from the MentorEx studio." />
-          <div className="project-grid">
-            {projects.map((project, i) => <motion.button className={'project-card project-' + i} key={project.title} onClick={() => setActiveProject(project)} initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }} transition={{ delay: i * .09 }}>
-              <div className="project-image" style={{ backgroundImage: `linear-gradient(180deg,transparent 45%,rgba(0,0,0,.72)),url("${project.image}")` }}><span className="project-number">0{i + 1}</span><span className="project-arrow">↗</span></div>
-              <div className="project-info"><span>{project.type}</span><h3>{project.title}</h3></div>
-            </motion.button>)}
-          </div>
-          <p className="asset-note">PROJECT IMAGES: Place approved project screenshots or photography in <code>public/images/projects/</code>. Replace the sample descriptions with verified case-study details before launch.</p>
-        </section>
-
-        <section className="manifesto">
-          <p className="eyebrow">THE MENTOREX MINDSET</p>
-          <h2>NOT JUST AN ONLINE PRESENCE.<br /><span>A REASON TO REMEMBER YOU.</span></h2>
-          <p>We combine thoughtful design, practical technology and purposeful storytelling to give businesses a stronger place in the digital world.</p>
-        </section>
-
-        <section className="section stories-section" id="our-stories">
-          <SectionHeading eyebrow="03 / OUR STORIES" title={<>MORE THAN<br /><em>THE FINISH.</em></>} copy="The thinking, people and little details behind every digital experience." />
-          <div className="stories-list">{stories.map((story, i) => <motion.article className="story-row" key={story.number} initial={{ opacity: 0, x: -18 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * .1 }}><span className="story-number">{story.number}</span><div><p className="eyebrow">{story.tag}</p><h3>{story.title}</h3><p className="story-text">{story.text}</p></div><span className="story-spark">✳</span></motion.article>)}</div>
-        </section>
-
-        <section className="services-band"><p className="eyebrow">WHAT WE BRING TO THE TABLE</p><div className="service-ticker">{[...services, ...services].map((service, i) => <span key={service + i}>{service}<b>✳</b></span>)}</div></section>
-
-        <section className="contact-section" id="contact">
-          <div className="contact-glow" />
-          <div className="contact-content"><p className="eyebrow">04 / HAVE A PROJECT IN MIND?</p><h2>LET’S MAKE<br /><em>IT HAPPEN.</em></h2><p className="contact-copy">Tell us what you’re building. We’ll bring the ideas, the craft and the digital thinking.</p>
-            <a className="contact-button" href="mailto:contact@mentorex.in?subject=Project%20enquiry">START A CONVERSATION <span>↗</span></a>
-            <div className="contact-details"><div><span>EMAIL US</span><a href="mailto:contact@mentorex.in">contact@mentorex.in</a></div><div><span>OUR PROMISE</span><p>AN EDUCATED CHOICE.</p></div><div><span>FOLLOW THE JOURNEY</span><p>ADD OFFICIAL SOCIAL LINKS</p></div></div>
-          </div>
-        </section>
+        {path === '/' && <Home navigate={navigate} />}
+        {path === '/reels' && <ReelsPage onPlay={setPlaying} />}
+        {path === '/projects' && <ProjectsPage navigate={navigate} />}
+        {activeProject && <ProjectDetail project={activeProject} onPlay={() => setPlaying(activeProject)} />}
+        {path === '/stories' && <StoriesPage />}
+        {path === '/contact' && <ContactPage />}
+        {!['/','/reels','/projects','/stories','/contact'].includes(path) && !activeProject && <NotFound navigate={navigate} />}
       </main>
 
-      <footer className="footer"><a className="brand" href="#home"><span className="brand-mark">M<span>•</span></span><span className="brand-name">MENTOREX <b>DIGITAL</b></span></a><p>© {new Date().getFullYear()} MENTOREX DIGITAL. ALL RIGHTS RESERVED.</p><a href="#home">BACK TO TOP ↑</a></footer>
+      <footer className="footer"><button className="footer-brand" onClick={() => navigate('/')}><span className="brand-name">MENTOREX <b>DIGITAL</b></span></button><p>© {new Date().getFullYear()} MENTOREX DIGITAL. ALL RIGHTS RESERVED.</p><button onClick={() => window.scrollTo({top:0,behavior:'smooth'})}>BACK TO TOP ↑</button></footer>
 
       <AnimatePresence>
-        {activeReel && <motion.div className="modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={closeOverlays}><motion.div className="video-modal" initial={{ scale: .94, y: 22 }} animate={{ scale: 1, y: 0 }} exit={{ scale: .96, y: 10 }} onClick={e => e.stopPropagation()}><button className="modal-close" onClick={closeOverlays} aria-label="Close video">×</button><video controls autoPlay playsInline poster={activeReel.poster}><source src={activeReel.video} type="video/mp4" />Your browser does not support video playback.</video><div className="modal-caption"><span>{activeReel.category}</span><h3>{activeReel.title}</h3></div></motion.div></motion.div>}
-        {activeProject && <motion.div className="modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={closeOverlays}><motion.div className="project-modal" initial={{ scale: .95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: .97 }} onClick={e => e.stopPropagation()}><button className="modal-close" onClick={closeOverlays} aria-label="Close project">×</button><div className="project-modal-image" style={{ backgroundImage: `url("${activeProject.image}")` }} /><div className="project-modal-copy"><p className="eyebrow">{activeProject.type}</p><h3>{activeProject.title}</h3><p>{activeProject.description}</p><a href="mailto:contact@mentorex.in?subject=I%20want%20a%20project%20like%20this">DISCUSS A SIMILAR PROJECT ↗</a></div></motion.div></motion.div>}
+        {playing && <motion.div className="modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setPlaying(null)}>
+          <motion.div className="video-modal" initial={{ scale: .94, y: 22 }} animate={{ scale: 1, y: 0 }} exit={{ scale: .96 }} onClick={e => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setPlaying(null)} aria-label="Close video">×</button>
+            <video controls autoPlay playsInline poster={playing.poster}><source src={playing.video} type="video/mp4" />Your browser does not support video playback.</video>
+            <div className="modal-caption"><span>{'category' in playing ? playing.category : 'PROJECT DEMO'}</span><h3>{playing.title}</h3></div>
+          </motion.div>
+        </motion.div>}
       </AnimatePresence>
     </div>
   );
+}
+
+function Home({ navigate }: { navigate: (path: string) => void }) {
+  return <>
+    <section className="hero" id="home">
+      <div className="hero-orb orb-one" /><div className="hero-orb orb-two" />
+      <div className="hero-content">
+        <motion.p className="eyebrow" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}>INDEPENDENT DIGITAL CREATIVE STUDIO</motion.p>
+        <motion.h1 initial={{ opacity: 0, y: 35 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .85, delay: .12 }}>WE MAKE<br /><span>DIGITAL</span> MATTER<span className="red-dot">.</span></motion.h1>
+        <motion.div className="hero-bottom" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: .5 }}>
+          <p>We build bold digital experiences that help ambitious businesses stand out, connect and grow.</p>
+          <button className="round-link" onClick={() => navigate('/projects')} aria-label="Explore projects">↘</button>
+        </motion.div>
+      </div>
+      <div className="hero-meta"><span>STRATEGY / DESIGN / DEVELOPMENT</span><span>SCROLL TO EXPLORE ↓</span><span>EST. 2023</span></div>
+      <div className="hero-stamp"><span>CREATIVE<br />THINKING</span><b>✳</b><span>DIGITAL<br />IMPACT</span></div>
+    </section>
+    <section className="home-feature"><p className="eyebrow">EXPLORE THE MENTOREX UNIVERSE</p><h2>ONE STUDIO.<br /><em>MANY POSSIBILITIES.</em></h2>
+      <div className="feature-grid">
+        <button onClick={() => navigate('/reels')}><span>01 / SHORT-FORM FILMS</span><b>THE REELS <i>↗</i></b><small>Creative videos, campaigns and visual stories.</small></button>
+        <button onClick={() => navigate('/projects')}><span>02 / DIGITAL EXPERIENCES</span><b>THE PROJECTS <i>↗</i></b><small>Explore our website work and live demos.</small></button>
+        <button onClick={() => navigate('/stories')}><span>03 / OUR STUDIO</span><b>OUR STORIES <i>↗</i></b><small>The ideas and process behind the work.</small></button>
+      </div>
+    </section>
+    <section className="home-contact"><p className="eyebrow">HAVE AN IDEA?</p><h2>LET’S MAKE<br /><em>IT HAPPEN.</em></h2><button className="contact-button" onClick={() => navigate('/contact')}>START A CONVERSATION ↗</button></section>
+  </>;
+}
+
+function PageIntro({ eyebrow, title, copy }: { eyebrow: string; title: React.ReactNode; copy: string }) {
+  return <div className="page-intro"><p className="eyebrow">{eyebrow}</p><h1>{title}</h1><p>{copy}</p></div>;
+}
+
+function ReelsPage({ onPlay }: { onPlay: (reel: Reel) => void }) {
+  return <section className="inner-page"><PageIntro eyebrow="01 / THE SHOWREEL" title={<>OUR <em>REELS.</em></>} copy="Five spaces for the videos and creative campaigns you’ll add. Select a card to preview its video once uploaded." />
+    <div className="reel-grid reel-grid-five">{reels.map((reel,i) => <motion.button className="reel-card" key={reel.id} onClick={() => onPlay(reel)} initial={{ opacity:0,y:24 }} animate={{ opacity:1,y:0 }} transition={{ delay:i*.08 }}><div className="reel-poster placeholder-poster"><span className="reel-index">{reel.id}</span><span className="placeholder-symbol">＋</span><span className="placeholder-label">VIDEO PLACEHOLDER</span></div><div className="reel-info"><span>{reel.category}</span><h3>{reel.title}</h3><b>↗</b></div></motion.button>)}</div>
+    <p className="asset-note">Upload MP4 files as <code>public/videos/reels/reel-1.mp4</code> through <code>reel-5.mp4</code>. Optional poster images: <code>public/images/reels/reel-1.jpg</code> through <code>reel-5.jpg</code>.</p>
+  </section>;
+}
+
+function ProjectsPage({ navigate }: { navigate: (path: string) => void }) {
+  return <section className="inner-page"><PageIntro eyebrow="02 / SELECTED WORK" title={<>OUR <em>PROJECTS.</em></>} copy="Each project has its own page, dedicated demo video and space for project details." />
+    <div className="project-grid project-grid-five">{projects.map((project,i) => <motion.button className="project-card" key={project.id} onClick={() => navigate('/projects/' + project.id)} initial={{ opacity:0,y:24 }} animate={{ opacity:1,y:0 }} transition={{ delay:i*.08 }}><div className="project-image project-placeholder"><span className="project-number">{String(i+1).padStart(2,'0')}</span><span className="placeholder-symbol">＋</span><span className="placeholder-label">WEBSITE DEMO PLACEHOLDER</span><span className="project-arrow">↗</span></div><div className="project-info"><span>{project.category}</span><h3>{project.title}</h3></div></motion.button>)}</div>
+    <p className="asset-note">Upload each website demo as <code>public/videos/projects/project-1-demo.mp4</code> through <code>project-5-demo.mp4</code>. Optional thumbnails: <code>public/images/projects/project-1.jpg</code> through <code>project-5.jpg</code>.</p>
+  </section>;
+}
+
+function ProjectDetail({ project, onPlay }: { project: Project; onPlay: () => void }) {
+  return <section className="inner-page project-detail"><p className="eyebrow">PROJECT / {project.id.toUpperCase()}</p><h1>{project.title.split(' ').slice(0,1)} <em>{project.title.split(' ').slice(1).join(' ')}</em></h1><p className="detail-lead">{project.description}</p>
+    <button className="project-demo-frame" onClick={onPlay}><span className="placeholder-symbol">▶</span><span>PLAY WEBSITE DEMO</span><small>YOUR PROJECT VIDEO WILL APPEAR HERE</small></button>
+    <div className="detail-bottom"><div><span>PROJECT TYPE</span><p>{project.category}</p></div><div><span>PROJECT DETAILS</span><p>Add the brief, features, technologies and live website link for this project.</p></div></div>
+  </section>;
+}
+
+function StoriesPage() {
+  return <section className="inner-page"><PageIntro eyebrow="03 / THE STUDIO" title={<>OUR <em>STORIES.</em></>} copy="The thinking, people and little details behind every digital experience." />
+    <div className="stories-list">{[{n:'01',t:'Behind the Build',d:'Every project begins with understanding the business, its audience and the action the website should inspire.'},{n:'02',t:'The MentorEx Approach',d:'Strategy, design and technology come together to create a consistent digital presence.'},{n:'03',t:'Design Diaries',d:'From the first wireframe to the finishing details, we focus on clarity, speed and memorable experiences.'}].map(s=><article className="story-row" key={s.n}><span className="story-number">{s.n}</span><div><p className="eyebrow">MENTOREX JOURNAL</p><h3>{s.t}</h3><p className="story-text">{s.d}</p></div><span className="story-spark">✳</span></article>)}</div>
+  </section>;
+}
+
+function ContactPage() {
+  return <section className="inner-page contact-page"><p className="eyebrow">04 / HAVE A PROJECT IN MIND?</p><h1>LET’S MAKE<br /><em>IT HAPPEN.</em></h1><p className="detail-lead">Tell us what you’re building. We’ll bring the ideas, the craft and the digital thinking.</p><a className="contact-button" href="mailto:contact@mentorex.in?subject=Project%20enquiry">EMAIL MENTOREX ↗</a><div className="contact-details"><div><span>EMAIL US</span><a href="mailto:contact@mentorex.in">contact@mentorex.in</a></div><div><span>OUR PROMISE</span><p>AN EDUCATED CHOICE.</p></div></div></section>;
+}
+
+function NotFound({ navigate }: { navigate: (path: string) => void }) {
+  return <section className="inner-page"><p className="eyebrow">404 / NOT FOUND</p><h1>THIS PAGE<br /><em>IS MISSING.</em></h1><button className="contact-button" onClick={() => navigate('/')}>BACK HOME ↗</button></section>;
 }
 
 export default App;
