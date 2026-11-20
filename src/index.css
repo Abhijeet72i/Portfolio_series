@@ -26,3 +26,19 @@
 @media(max-width:650px){.floating-whatsapp{right:12px;bottom:12px;padding:9px 11px}.contact-actions{align-items:stretch;flex-direction:column}.contact-actions a{width:fit-content}}
 
 .media-poster .reel-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:transparent}.media-poster .reel-video::-webkit-media-controls-panel{background-image:linear-gradient(transparent,rgba(0,0,0,.72))}.media-poster .media-index,.media-poster .placeholder-tag{z-index:2;pointer-events:none}.media-poster .reel-video:focus{outline:1px solid #e6332a;outline-offset:-2px}
+
+
+/* Netflix-inspired hover-to-play home hero */
+.home-hero{overflow:hidden;isolation:isolate}
+.hero-background-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;opacity:0;transition:opacity .7s ease;pointer-events:none}
+.hero-video-active .hero-background-video{opacity:.82}
+.hero-video-shade{position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(90deg,rgba(5,5,5,.96) 0%,rgba(5,5,5,.76) 42%,rgba(5,5,5,.22) 100%),linear-gradient(0deg,rgba(5,5,5,.72),transparent 45%,rgba(5,5,5,.2)}
+.hero-video-active .hero-orb,.hero-video-active .hero:after{opacity:.08}
+.hero-actions{display:flex;align-items:center;gap:14px}
+.watch-now-button{display:inline-flex;align-items:center;gap:12px;padding:17px 22px;background:#f2f0eb;color:#111;font-size:10px;font-weight:900;letter-spacing:.16em;transition:background .2s,transform .2s}
+.watch-now-button:hover{background:#e6332a;color:#fff;transform:translateY(-2px)}
+.watch-play{font-size:13px}
+.hover-hint{transition:color .25s}
+.hero-video-active .hover-hint{color:#f2f0eb}
+@media(max-width:650px){.hero-background-video{display:none}.hero-actions{gap:9px}.watch-now-button{padding:15px 16px;font-size:9px}}
+@media(prefers-reduced-motion:reduce){.hero-background-video{transition:none}}
