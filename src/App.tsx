@@ -1,153 +1,136 @@
-import { lazy, Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
-import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
-import { viewerProfiles, type ProfileId, type Project, type SectionId } from './data/portfolio';
-import { SmoothScrollProvider, useSmoothScroll } from './hooks/smoothScroll';
-import CustomCursor from './components/CustomCursor';
-import OpeningSequence from './components/OpeningSequence';
-import ProfileSelector from './components/ProfileSelector';
-import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import ContinueWatching from './components/ContinueWatching';
-import Scene from './components/Scene';
-import About from './components/About';
-import Seasons from './components/Seasons';
-import Originals from './components/Originals';
-import TopPicks from './components/TopPicks';
-import Skills from './components/Skills';
-import Achievements from './components/Achievements';
-import ResumeSection from './components/ResumeViewer';
-import FinalCTA from './components/FinalCTA';
-import { EASE } from './components/fx';
+import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 
-// Overlays are only needed on demand — split them out of the first load.
-const PlayIntro = lazy(() => import('./components/PlayIntro'));
-const ProjectModal = lazy(() => import('./components/ProjectModal'));
-const ResumeModal = lazy(() => import('./components/ResumeModal'));
+type Work = { title: string; type: string; description: string; image: string; };
+type Reel = { title: string; category: string; video: string; poster: string; };
 
-type Stage = 'opening' | 'profiles' | 'home';
+const reels: Reel[] = [
+  { title: 'Restaurant & Food Films', category: 'REEL 01 · HOSPITALITY', video: '/videos/reels/restaurant-promo.mp4', poster: '/images/reels/restaurant-promo.jpg' },
+  { title: 'Hotel Experiences', category: 'REEL 02 · TRAVEL', video: '/videos/reels/hotel-promo.mp4', poster: '/images/reels/hotel-promo.jpg' },
+  { title: 'Website Showcases', category: 'REEL 03 · WEB', video: '/videos/reels/website-showcase.mp4', poster: '/images/reels/website-showcase.jpg' },
+  { title: 'Campaign Stories', category: 'REEL 04 · CAMPAIGNS', video: '/videos/reels/digital-ad.mp4', poster: '/images/reels/digital-ad.jpg' },
+];
 
-const STORAGE_KEY = 'sushmita-series-profile';
+const projects: Work[] = [
+  { title: 'Ahmed Foodverse', type: 'HOSPITALITY · WEB EXPERIENCE', description: 'A dark, premium restaurant website concept built around rich food visuals, menu discovery and direct WhatsApp ordering.', image: '/images/projects/ahmed-foodverse.jpg' },
+  { title: 'Hospitality Experiences', type: 'HOTELS · CAFÉS · RESTAURANTS', description: 'Digital experiences that help hospitality brands present their spaces, services and signature offerings.', image: '/images/projects/hospitality.jpg' },
+  { title: 'Business Websites', type: 'WEB DESIGN · DEVELOPMENT', description: 'Responsive websites designed to make small businesses easier to discover, understand and contact.', image: '/images/projects/business-websites.jpg' },
+  { title: 'Campaign Studio', type: 'CREATIVE · SOCIAL MEDIA', description: 'Short-form promotional concepts and creative assets built to communicate a brand message clearly.', image: '/images/projects/campaign-studio.jpg' },
+];
 
-function readStoredProfile(): ProfileId | null {
-  try {
-    const v = sessionStorage.getItem(STORAGE_KEY);
-    return viewerProfiles.some((p) => p.id === v) ? (v as ProfileId) : null;
-  } catch {
-    return null;
-  }
+const stories = [
+  { number: '01', title: 'Behind the Build', tag: 'OUR PROCESS', text: 'Every project begins with understanding the business, its audience and the action the website should inspire.' },
+  { number: '02', title: 'The MentorEx Approach', tag: 'OUR THINKING', text: 'Strategy, design and technology come together to create a consistent digital presence—not just a pretty page.' },
+  { number: '03', title: 'Design Diaries', tag: 'OUR CRAFT', text: 'From the first wireframe to the finishing details, we focus on clarity, speed and memorable experiences.' },
+];
+
+const services = ['Website Design', 'Website Development', 'Social Media Marketing', 'SEO & Local Visibility', 'Branding & Creative Design', 'Video & Ad Creatives', 'Digital Strategy'];
+
+function SectionHeading({ eyebrow, title, copy }: { eyebrow: string; title: string; copy?: string }) {
+  return <div className="section-heading"><p className="eyebrow">{eyebrow}</p><h2>{title}</h2>{copy && <p className="section-copy">{copy}</p>}</div>;
 }
 
-export default function App() {
-  return (
-    <SmoothScrollProvider>
-      <Series />
-    </SmoothScrollProvider>
-  );
-}
-
-function Series() {
-  const stored = readStoredProfile();
-  const [stage, setStage] = useState<Stage>(stored ? 'home' : 'opening');
-  const [profileId, setProfileId] = useState<ProfileId>(stored ?? 'sushmita');
-  const [playing, setPlaying] = useState(false);
-  const [project, setProject] = useState<Project | null>(null);
-  const [resumeOpen, setResumeOpen] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
-  const { scrollTo, lock, unlock } = useSmoothScroll();
-
-  const order = viewerProfiles.find((p) => p.id === profileId)!.order;
+function App() {
+  const [activeReel, setActiveReel] = useState<Reel | null>(null);
+  const [activeProject, setActiveProject] = useState<Work | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    if (stage === 'home') return;
-    lock();
-    return unlock;
-  }, [stage, lock, unlock]);
+    document.body.style.overflow = activeReel || activeProject ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [activeReel, activeProject]);
 
-  const pickProfile = useCallback(
-    (id: ProfileId) => {
-      setProfileId(id);
-      try {
-        sessionStorage.setItem(STORAGE_KEY, id);
-      } catch {
-        /* storage unavailable — profile simply won't persist */
-      }
-      if (stage !== 'home') {
-        window.scrollTo(0, 0);
-        setStage('home');
-      } else {
-        const p = viewerProfiles.find((v) => v.id === id)!;
-        setToast(`Now watching as ${p.name} — ${p.blurb.toLowerCase()}`);
-        scrollTo(0, { offset: 0 });
-      }
-    },
-    [stage, scrollTo],
-  );
+  const closeOverlays = () => { setActiveReel(null); setActiveProject(null); };
 
   useEffect(() => {
-    if (!toast) return;
-    const t = window.setTimeout(() => setToast(null), 3200);
-    return () => clearTimeout(t);
-  }, [toast]);
-
-  const closeIntro = useCallback(() => setPlaying(false), []);
-  const closeProject = useCallback(() => setProject(null), []);
-  const closeResume = useCallback(() => setResumeOpen(false), []);
-
-  const sections: Record<SectionId, ReactNode> = {
-    about: <About />,
-    journey: <Seasons />,
-    originals: <Originals onOpen={setProject} />,
-    picks: <TopPicks />,
-    skills: <Skills />,
-    moments: <Achievements />,
-    story: <ResumeSection onView={() => setResumeOpen(true)} />,
-  };
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') closeOverlays(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   return (
-    <LayoutGroup>
-      <div className="grain" aria-hidden />
-      <CustomCursor />
+    <div className="site-shell">
+      <div className="noise" aria-hidden="true" />
+      <header className="navbar">
+        <a className="brand" href="#home" aria-label="MentorEx Digital home"><span className="brand-mark">M<span>•</span></span><span className="brand-name">MENTOREX <b>DIGITAL</b></span></a>
+        <button className="menu-toggle" aria-label="Toggle navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}>{menuOpen ? 'CLOSE −' : 'MENU +'}</button>
+        <nav className={menuOpen ? 'nav-links open' : 'nav-links'} aria-label="Main navigation">
+          {['Home', 'Reels', 'Projects', 'Our Stories', 'Contact'].map((item) => <a key={item} href={'#' + item.toLowerCase().replaceAll(' ', '-')} onClick={() => setMenuOpen(false)}>{item}</a>)}
+        </nav>
+        <a className="nav-cta" href="#contact">LET’S TALK <span>↗</span></a>
+      </header>
+
+      <main>
+        <section className="hero" id="home">
+          <div className="hero-orb orb-one" /><div className="hero-orb orb-two" />
+          <div className="hero-content">
+            <motion.p className="eyebrow" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .7 }}>INDEPENDENT DIGITAL CREATIVE STUDIO</motion.p>
+            <motion.h1 initial={{ opacity: 0, y: 35 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .85, delay: .12 }}>WE MAKE<br /><span>DIGITAL</span> MATTER<span className="red-dot">.</span></motion.h1>
+            <motion.div className="hero-bottom" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: .5, duration: .8 }}>
+              <p>We build bold digital experiences that help ambitious businesses stand out, connect and grow.</p>
+              <a href="#projects" className="round-link" aria-label="Explore projects">↘</a>
+            </motion.div>
+          </div>
+          <div className="hero-meta"><span>STRATEGY / DESIGN / DEVELOPMENT</span><span>SCROLL TO EXPLORE ↓</span><span>EST. 2023</span></div>
+          <div className="hero-stamp"><span>CREATIVE<br />THINKING</span><b>✳</b><span>DIGITAL<br />IMPACT</span></div>
+        </section>
+
+        <section className="intro-strip">
+          <p>GOOD DESIGN GETS ATTENTION.</p><p className="outline">GREAT DIGITAL BUILDS TRUST.</p>
+        </section>
+
+        <section className="section reels-section" id="reels">
+          <SectionHeading eyebrow="01 / THE SHOWREEL" title={<>SMALL SCREENS.<br /><em>BIG IMPACT.</em></>} copy="A glimpse into the creative work, visual stories and digital moments we bring to life." />
+          <div className="reel-grid">
+            {reels.map((reel, i) => <motion.button className="reel-card" key={reel.title} onClick={() => setActiveReel(reel)} initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-60px' }} transition={{ delay: i * .08, duration: .6 }}>
+              <div className="reel-poster" style={{ backgroundImage: `linear-gradient(180deg,rgba(0,0,0,.04),rgba(0,0,0,.72)),url("${reel.poster}")` }}><span className="play-icon">▶</span><span className="reel-index">0{i + 1}</span></div>
+              <div className="reel-info"><span>{reel.category}</span><h3>{reel.title}</h3><b>↗</b></div>
+            </motion.button>)}
+          </div>
+          <p className="asset-note">MEDIA NOTE: Add your finished vertical videos to <code>public/videos/reels/</code> and matching poster images to <code>public/images/reels/</code>.</p>
+        </section>
+
+        <section className="section projects-section" id="projects">
+          <SectionHeading eyebrow="02 / SELECTED WORK" title={<>BUILT WITH<br /><em>INTENTION.</em></>} copy="A selection of digital experiences and creative directions from the MentorEx studio." />
+          <div className="project-grid">
+            {projects.map((project, i) => <motion.button className={'project-card project-' + i} key={project.title} onClick={() => setActiveProject(project)} initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }} transition={{ delay: i * .09 }}>
+              <div className="project-image" style={{ backgroundImage: `linear-gradient(180deg,transparent 45%,rgba(0,0,0,.72)),url("${project.image}")` }}><span className="project-number">0{i + 1}</span><span className="project-arrow">↗</span></div>
+              <div className="project-info"><span>{project.type}</span><h3>{project.title}</h3></div>
+            </motion.button>)}
+          </div>
+          <p className="asset-note">PROJECT IMAGES: Place approved project screenshots or photography in <code>public/images/projects/</code>. Replace the sample descriptions with verified case-study details before launch.</p>
+        </section>
+
+        <section className="manifesto">
+          <p className="eyebrow">THE MENTOREX MINDSET</p>
+          <h2>NOT JUST AN ONLINE PRESENCE.<br /><span>A REASON TO REMEMBER YOU.</span></h2>
+          <p>We combine thoughtful design, practical technology and purposeful storytelling to give businesses a stronger place in the digital world.</p>
+        </section>
+
+        <section className="section stories-section" id="our-stories">
+          <SectionHeading eyebrow="03 / OUR STORIES" title={<>MORE THAN<br /><em>THE FINISH.</em></>} copy="The thinking, people and little details behind every digital experience." />
+          <div className="stories-list">{stories.map((story, i) => <motion.article className="story-row" key={story.number} initial={{ opacity: 0, x: -18 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * .1 }}><span className="story-number">{story.number}</span><div><p className="eyebrow">{story.tag}</p><h3>{story.title}</h3><p className="story-text">{story.text}</p></div><span className="story-spark">✳</span></motion.article>)}</div>
+        </section>
+
+        <section className="services-band"><p className="eyebrow">WHAT WE BRING TO THE TABLE</p><div className="service-ticker">{[...services, ...services].map((service, i) => <span key={service + i}>{service}<b>✳</b></span>)}</div></section>
+
+        <section className="contact-section" id="contact">
+          <div className="contact-glow" />
+          <div className="contact-content"><p className="eyebrow">04 / HAVE A PROJECT IN MIND?</p><h2>LET’S MAKE<br /><em>IT HAPPEN.</em></h2><p className="contact-copy">Tell us what you’re building. We’ll bring the ideas, the craft and the digital thinking.</p>
+            <a className="contact-button" href="mailto:contact@mentorex.in?subject=Project%20enquiry">START A CONVERSATION <span>↗</span></a>
+            <div className="contact-details"><div><span>EMAIL US</span><a href="mailto:contact@mentorex.in">contact@mentorex.in</a></div><div><span>OUR PROMISE</span><p>AN EDUCATED CHOICE.</p></div><div><span>FOLLOW THE JOURNEY</span><p>ADD OFFICIAL SOCIAL LINKS</p></div></div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="footer"><a className="brand" href="#home"><span className="brand-mark">M<span>•</span></span><span className="brand-name">MENTOREX <b>DIGITAL</b></span></a><p>© {new Date().getFullYear()} MENTOREX DIGITAL. ALL RIGHTS RESERVED.</p><a href="#home">BACK TO TOP ↑</a></footer>
 
       <AnimatePresence>
-        {stage === 'opening' && <OpeningSequence key="opening" onDone={() => setStage('profiles')} />}
-        {stage === 'profiles' && <ProfileSelector key="profiles" onPick={pickProfile} />}
+        {activeReel && <motion.div className="modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={closeOverlays}><motion.div className="video-modal" initial={{ scale: .94, y: 22 }} animate={{ scale: 1, y: 0 }} exit={{ scale: .96, y: 10 }} onClick={e => e.stopPropagation()}><button className="modal-close" onClick={closeOverlays} aria-label="Close video">×</button><video controls autoPlay playsInline poster={activeReel.poster}><source src={activeReel.video} type="video/mp4" />Your browser does not support video playback.</video><div className="modal-caption"><span>{activeReel.category}</span><h3>{activeReel.title}</h3></div></motion.div></motion.div>}
+        {activeProject && <motion.div className="modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={closeOverlays}><motion.div className="project-modal" initial={{ scale: .95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: .97 }} onClick={e => e.stopPropagation()}><button className="modal-close" onClick={closeOverlays} aria-label="Close project">×</button><div className="project-modal-image" style={{ backgroundImage: `url("${activeProject.image}")` }} /><div className="project-modal-copy"><p className="eyebrow">{activeProject.type}</p><h3>{activeProject.title}</h3><p>{activeProject.description}</p><a href="mailto:contact@mentorex.in?subject=I%20want%20a%20project%20like%20this">DISCUSS A SIMILAR PROJECT ↗</a></div></motion.div></motion.div>}
       </AnimatePresence>
-
-      {stage === 'home' && (
-        <motion.div initial={{ opacity: 0, scale: 1.03, filter: 'blur(10px)' }} animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }} transition={{ duration: 1, ease: EASE }}>
-          <Navbar order={order} profileId={profileId} onSwitch={pickProfile} />
-          <main>
-            <Hero key={`hero-${profileId}`} onPlay={() => setPlaying(true)} onResume={() => setResumeOpen(true)} profileId={profileId} />
-            <ContinueWatching order={order} />
-            {order.map((id) => (
-              <Scene key={id} id={id} className={id === 'originals' ? '!py-0 sm:!py-0' : ''}>
-                {sections[id]}
-              </Scene>
-            ))}
-            <FinalCTA onReplay={() => setStage('opening')} />
-          </main>
-        </motion.div>
-      )}
-
-      <Suspense fallback={null}>
-        <AnimatePresence>{playing && <PlayIntro key="intro" onClose={closeIntro} />}</AnimatePresence>
-        <AnimatePresence>{project && <ProjectModal key="project" project={project} onClose={closeProject} onSwitch={setProject} />}</AnimatePresence>
-        <AnimatePresence>{resumeOpen && <ResumeModal key="resume" onClose={closeResume} />}</AnimatePresence>
-      </Suspense>
-
-      <AnimatePresence>
-        {toast && (
-          <motion.div
-            role="status"
-            className="glass fixed bottom-6 left-1/2 z-[150] w-[min(92vw,420px)] -translate-x-1/2 rounded-xl px-5 py-3 text-center text-sm text-bone"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 30 }}
-          >
-            {toast}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </LayoutGroup>
+    </div>
   );
 }
+
+export default App;
