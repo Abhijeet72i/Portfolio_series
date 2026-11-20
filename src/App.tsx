@@ -6,13 +6,13 @@ type Project = { id: number; title: string; category: string; summary: string; v
 
 const reels: Reel[] = Array.from({ length: 5 }, (_, i) => ({
   id: i + 1, title: `Reel Placeholder 0${i + 1}`,
-  video: `/videos/reels/reel-0${i + 1}.mp4`, poster: `/images/reels/reel-0${i + 1}.jpg`,
+  video: `/videos/reels/reel-0${i + 1}.mp4`, poster: `/images/reels/reel-0${i + 1}.svg`,
 }));
 const projects: Project[] = Array.from({ length: 5 }, (_, i) => ({
   id: i + 1, title: `Project Placeholder 0${i + 1}`,
   category: 'WEBSITE DESIGN · DEVELOPMENT',
   summary: 'Add your project title, description and website demo video here. This dedicated project page is ready for your content.',
-  video: `/videos/projects/project-0${i + 1}.mp4`, poster: `/images/projects/project-0${i + 1}.jpg`,
+  video: `/videos/projects/project-0${i + 1}.mp4`, poster: `/images/projects/project-0${i + 1}.svg`,
 }));
 
 function Logo({ large = false }: { large?: boolean }) {
@@ -44,7 +44,7 @@ function Footer() {
   return <footer className="footer"><Logo /><p>© {new Date().getFullYear()} MENTOREX DIGITAL. ALL RIGHTS RESERVED.</p><Link to="/">BACK TO HOME ↑</Link></footer>;
 }
 function ReelCard({ reel }: { reel: Reel }) {
-  return <article className="media-card"><div className={`media-poster reel-slot-${reel.id}`}><span className="media-index">0{reel.id}</span><span className="media-play">▶</span><span className="placeholder-tag">VIDEO SLOT</span></div><div className="media-caption"><span>MENTOREX REEL · 0{reel.id}</span><h2>{reel.title}</h2><p>Upload your vertical reel to <code>{reel.video}</code></p></div></article>;
+  return <article className="media-card"><div className={`media-poster reel-slot-${reel.id}`}><video className="reel-video" controls playsInline preload="none" poster={reel.poster}><source src={reel.video} type="video/mp4"/>Your browser does not support video playback.</video><span className="media-index">0{reel.id}</span><span className="placeholder-tag">REEL VIDEO SLOT</span></div><div className="media-caption"><span>MENTOREX REEL · 0{reel.id}</span><h2>{reel.title}</h2><p>Upload your vertical reel to <code>{reel.video}</code></p></div></article>;
 }
 function ProjectCard({ project }: { project: Project }) {
   return <Link to={`/projects/project-0${project.id}`} className="project-tile"><div className={`project-poster project-slot-${project.id}`}><span className="media-index">0{project.id}</span><span className="project-open">VIEW PROJECT ↗</span><span className="placeholder-tag">DEMO VIDEO SLOT</span></div><div className="media-caption"><span>{project.category}</span><h2>{project.title}</h2><p>Open dedicated project page</p></div></Link>;
