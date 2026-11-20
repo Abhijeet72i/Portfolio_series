@@ -1,13 +1,16 @@
-# MentorEx Digital — Agency Portfolio
+# MentorEx Digital — Cinematic Multi-page Portfolio
 
-A cinematic, responsive portfolio for MentorEx Digital, adapted from the original React/Vite portfolio starter.
+A cinematic, streaming-inspired agency portfolio for MentorEx Digital, built with React, TypeScript, Vite and Framer Motion.
 
-## Sections
-- Home / studio introduction
-- Reels with modal video playback
-- Selected Projects with case-study overlays
-- Our Stories / studio approach
-- Contact with email CTA
+## Experience and pages
+
+- **Opening brand reveal:** a full-screen MentorEx logo/wordmark animation before the site appears.
+- **Home:** agency introduction and navigation to the main areas.
+- **Reels:** five video placeholders.
+- **Projects:** five project placeholders, each opening its own project detail page.
+- **Project detail pages:** dedicated page for each project, with a website-demo video area and space for project information.
+- **Our Stories:** studio approach and process.
+- **Contact:** email enquiry page.
 
 ## Run locally
 
@@ -25,31 +28,72 @@ npm run build
 npm run preview
 ```
 
-## Add your real media
+## Add your logo
 
-The interface uses named local asset paths so the gallery is ready for your approved media.
+Upload the official MentorEx logo as:
 
-### Reels
-Add MP4 files and poster images:
-- `public/videos/reels/restaurant-promo.mp4`
-- `public/videos/reels/hotel-promo.mp4`
-- `public/videos/reels/website-showcase.mp4`
-- `public/videos/reels/digital-ad.mp4`
-- Poster images with matching names in `public/images/reels/` (JPG).
+```
+public/images/mentorex-logo.png
+```
 
-### Project images
-Add approved screenshots or photography:
-- `public/images/projects/ahmed-foodverse.jpg`
-- `public/images/projects/hospitality.jpg`
-- `public/images/projects/business-websites.jpg`
-- `public/images/projects/campaign-studio.jpg`
+The opening animation and navbar use this path. A wordmark fallback appears until the logo file is added.
 
-Until these assets are added, the layout still renders with its dark visual fallback; the media paths are not real project evidence.
+## Add your five reels
 
-## Update contact and social links
+Upload MP4 videos here:
 
-The contact email is currently `contact@mentorex.in`. Add the official Instagram, LinkedIn and WhatsApp URLs once the correct business profiles/number are confirmed. No social account or phone number is fabricated in this starter.
+```
+public/videos/reels/reel-1.mp4
+public/videos/reels/reel-2.mp4
+public/videos/reels/reel-3.mp4
+public/videos/reels/reel-4.mp4
+public/videos/reels/reel-5.mp4
+```
+
+Optional poster thumbnails:
+
+```
+public/images/reels/reel-1.jpg
+...
+public/images/reels/reel-5.jpg
+```
+
+## Add your five project demo videos
+
+Each project has its own route:
+- `/projects/project-01`
+- `/projects/project-02`
+- `/projects/project-03`
+- `/projects/project-04`
+- `/projects/project-05`
+
+Upload each website walkthrough/demo video:
+
+```
+public/videos/projects/project-1-demo.mp4
+public/videos/projects/project-2-demo.mp4
+public/videos/projects/project-3-demo.mp4
+public/videos/projects/project-4-demo.mp4
+public/videos/projects/project-5-demo.mp4
+```
+
+Optional project thumbnails:
+
+```
+public/images/projects/project-1.jpg
+...
+public/images/projects/project-5.jpg
+```
+
+Project titles, descriptions and categories are currently generic placeholders in `src/App.tsx`. They can be replaced when you provide the five project names and details.
+
+## Contact and brand details
+
+- Email: `contact@mentorex.in`
+- Tagline: `An Educated Choice`
+
+Official social profile links and WhatsApp contact can be added when supplied.
 
 ## Stack
 
-React 18 · TypeScript · Vite 6 · Tailwind CSS 4 · Framer Motion 11 · Lenis (dependency retained from starter).
+React 18 · TypeScript · Vite 6 · Tailwind CSS 4 · Framer Motion 11.
